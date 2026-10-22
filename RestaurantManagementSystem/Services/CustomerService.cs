@@ -8,7 +8,7 @@ namespace RestaurantManagementSystem.Services
 {
     public class CustomerService
     {
-        public List<Customer> Customers = new List<Customer>();
+        public List<Customer> Customers { get; set; } = new List<Customer>();
 
         public void AddCustomer(Customer customer)
         {
@@ -38,15 +38,11 @@ namespace RestaurantManagementSystem.Services
                 return;
             }
 
-            Console.WriteLine("\n--- Customer Details ---");
-
             foreach (Customer customer in Customers)
             {
                 Console.WriteLine(
-                    "ID: " + customer.CustomerId +
-                    " | Name: " + customer.FullName +
-                    " | Phone: " + customer.PhoneNumber +
-                    " | Email: " + customer.Email);
+                    $"ID: {customer.CustomerId} | Name: {customer.FullName} | " +
+                    $"Phone: {customer.PhoneNumber} | Email: {customer.Email}");
             }
         }
 
@@ -62,10 +58,8 @@ namespace RestaurantManagementSystem.Services
             }
 
             Console.WriteLine(
-                customer.CustomerId + " | " +
-                customer.FullName + " | " +
-                customer.PhoneNumber + " | " +
-                customer.Email);
+                $"{customer.CustomerId} | {customer.FullName} | " +
+                $"{customer.PhoneNumber} | {customer.Email}");
         }
 
         public void UpdateCustomer(

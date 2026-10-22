@@ -1,5 +1,6 @@
 ﻿
 using System;
+using RestaurantManagementSystem.Data;
 using RestaurantManagementSystem.Models;
 using RestaurantManagementSystem.Services;
 
@@ -9,11 +10,22 @@ namespace RestaurantManagementSystem
     {
         static void Main(string[] args)
         {
+            JsonFileService jsonService = new JsonFileService();
+
             MenuService menuService = new MenuService();
             CustomerService customerService = new CustomerService();
 
+            menuService.MenuItems =
+                jsonService.Load<MenuItem>("menu.json");
+
+            customerService.Customers =
+                jsonService.Load<Customer>("customers.json");
+
             RestaurantService restaurantService =
                 new RestaurantService(menuService, customerService);
+
+            restaurantService.Orders =
+                jsonService.Load<RestaurantOrder>("orders.json");
 
             int choice = -1;
 
@@ -47,33 +59,37 @@ namespace RestaurantManagementSystem
                 switch (choice)
                 {
                     case 1:
-                        MenuItem item = new MenuItem();
-
-                        Console.Write("Enter Item ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int itemId))
                         {
-                            Console.WriteLine("Invalid item ID.");
+                            MenuItem item = new MenuItem();
+
+                            Console.Write("Enter Item ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int itemId))
+                            {
+                                Console.WriteLine("Invalid item ID.");
+                                break;
+                            }
+
+                            item.ItemId = itemId;
+
+                            Console.Write("Enter Item Name: ");
+                            item.Name = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter Category: ");
+                            item.Category = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter Price: ");
+                            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+                            {
+                                Console.WriteLine("Invalid price.");
+                                break;
+                            }
+
+                            item.Price = price;
+                            item.IsAvailable = true;
+
+                            menuService.AddMenuItem(item);
                             break;
                         }
-                        item.ItemId = itemId;
-
-                        Console.Write("Enter Item Name: ");
-                        item.Name = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter Category: ");
-                        item.Category = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter Price: ");
-                        if (!decimal.TryParse(Console.ReadLine(), out decimal price))
-                        {
-                            Console.WriteLine("Invalid price.");
-                            break;
-                        }
-
-                        item.Price = price;
-                        item.IsAvailable = true;
-                        menuService.AddMenuItem(item);
-                        break;
 
                     case 2:
                         menuService.DisplayMenu();
@@ -85,29 +101,30 @@ namespace RestaurantManagementSystem
                         break;
 
                     case 4:
-                        Console.Write("Enter Item ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int updateItemId))
                         {
-                            Console.WriteLine("Invalid item ID.");
+                            Console.Write("Enter Item ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int updateId))
+                            {
+                                Console.WriteLine("Invalid item ID.");
+                                break;
+                            }
+
+                            Console.Write("Enter new name: ");
+                            string name = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter new category: ");
+                            string category = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter new price: ");
+                            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+                            {
+                                Console.WriteLine("Invalid price.");
+                                break;
+                            }
+
+                            menuService.UpdateMenuItem(updateId, name, category, price);
                             break;
                         }
-
-                        Console.Write("Enter new name: ");
-                        string newName = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter new category: ");
-                        string newCategory = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter new price: ");
-                        if (!decimal.TryParse(Console.ReadLine(), out decimal newPrice))
-                        {
-                            Console.WriteLine("Invalid price.");
-                            break;
-                        }
-
-                        menuService.UpdateMenuItem(
-                            updateItemId, newName, newCategory, newPrice);
-                        break;
 
                     case 5:
                         Console.Write("Enter Item ID: ");
@@ -118,27 +135,30 @@ namespace RestaurantManagementSystem
                         break;
 
                     case 6:
-                        Customer customer = new Customer();
-
-                        Console.Write("Enter Customer ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int customerId))
                         {
-                            Console.WriteLine("Invalid customer ID.");
+                            Customer customer = new Customer();
+
+                            Console.Write("Enter Customer ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int customerId))
+                            {
+                                Console.WriteLine("Invalid customer ID.");
+                                break;
+                            }
+
+                            customer.CustomerId = customerId;
+
+                            Console.Write("Enter Customer Name: ");
+                            customer.FullName = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter Phone Number: ");
+                            customer.PhoneNumber = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter Email: ");
+                            customer.Email = Console.ReadLine() ?? "";
+
+                            customerService.AddCustomer(customer);
                             break;
                         }
-                        customer.CustomerId = customerId;
-
-                        Console.Write("Enter Customer Name: ");
-                        customer.FullName = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter Phone Number: ");
-                        customer.PhoneNumber = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter Email: ");
-                        customer.Email = Console.ReadLine() ?? "";
-
-                        customerService.AddCustomer(customer);
-                        break;
 
                     case 7:
                         customerService.DisplayCustomers();
@@ -153,25 +173,27 @@ namespace RestaurantManagementSystem
                         break;
 
                     case 9:
-                        Console.Write("Enter Customer ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int editCustomerId))
                         {
-                            Console.WriteLine("Invalid customer ID.");
+                            Console.Write("Enter Customer ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int editCustomerId))
+                            {
+                                Console.WriteLine("Invalid customer ID.");
+                                break;
+                            }
+
+                            Console.Write("Enter new name: ");
+                            string editName = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter new phone: ");
+                            string editPhone = Console.ReadLine() ?? "";
+
+                            Console.Write("Enter new email: ");
+                            string editEmail = Console.ReadLine() ?? "";
+
+                            customerService.UpdateCustomer(
+                                editCustomerId, editName, editPhone, editEmail);
                             break;
                         }
-
-                        Console.Write("Enter new name: ");
-                        string editName = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter new phone: ");
-                        string editPhone = Console.ReadLine() ?? "";
-
-                        Console.Write("Enter new email: ");
-                        string editEmail = Console.ReadLine() ?? "";
-
-                        customerService.UpdateCustomer(
-                            editCustomerId, editName, editPhone, editEmail);
-                        break;
 
                     case 10:
                         Console.Write("Enter Customer ID: ");
@@ -182,54 +204,65 @@ namespace RestaurantManagementSystem
                         break;
 
                     case 11:
-                        Console.Write("Enter Order ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int orderId))
                         {
-                            Console.WriteLine("Invalid order ID.");
+                            Console.Write("Enter Order ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int orderId))
+                            {
+                                Console.WriteLine("Invalid order ID.");
+                                break;
+                            }
+
+                            Console.Write("Enter Customer ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int orderCustomerId))
+                            {
+                                Console.WriteLine("Invalid customer ID.");
+                                break;
+                            }
+
+                            restaurantService.CreateOrder(orderId, orderCustomerId);
                             break;
                         }
-
-                        Console.Write("Enter Customer ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int orderCustomerId))
-                        {
-                            Console.WriteLine("Invalid customer ID.");
-                            break;
-                        }
-
-                        restaurantService.CreateOrder(orderId, orderCustomerId);
-                        break;
 
                     case 12:
                         restaurantService.DisplayOrders();
                         break;
 
                     case 13:
-                        Console.Write("Enter Order ID: ");
-                        if (!int.TryParse(Console.ReadLine(), out int statusOrderId))
                         {
-                            Console.WriteLine("Invalid order ID.");
+                            Console.Write("Enter Order ID: ");
+                            if (!int.TryParse(Console.ReadLine(), out int statusOrderId))
+                            {
+                                Console.WriteLine("Invalid order ID.");
+                                break;
+                            }
+
+                            Console.WriteLine("1. Preparing");
+                            Console.WriteLine("2. Ready");
+                            Console.WriteLine("3. Served");
+                            Console.WriteLine("4. Cancelled");
+                            Console.Write("Choose status: ");
+
+                            if (int.TryParse(Console.ReadLine(), out int statusChoice) &&
+                                statusChoice >= 1 && statusChoice <= 4)
+                            {
+                                OrderStatus status = statusChoice switch
+                                {
+                                    1 => OrderStatus.Preparing,
+                                    2 => OrderStatus.Ready,
+                                    3 => OrderStatus.Served,
+                                    4 => OrderStatus.Cancelled,
+                                    _ => OrderStatus.Placed
+                                };
+
+                                restaurantService.UpdateOrderStatus(statusOrderId, status);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid status.");
+                            }
+
                             break;
                         }
-
-                        Console.WriteLine("1. Placed");
-                        Console.WriteLine("2. Preparing");
-                        Console.WriteLine("3. Ready");
-                        Console.WriteLine("4. Served");
-                        Console.WriteLine("5. Cancelled");
-                        Console.Write("Choose status: ");
-
-                        if (int.TryParse(Console.ReadLine(), out int statusChoice) &&
-                            statusChoice >= 1 && statusChoice <= 5)
-                        {
-                            restaurantService.UpdateOrderStatus(
-                                statusOrderId,
-                                (OrderStatus)(statusChoice - 1));
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid status.");
-                        }
-                        break;
 
                     case 14:
                         restaurantService.ShowServedSales();
@@ -243,6 +276,10 @@ namespace RestaurantManagementSystem
                         Console.WriteLine("Invalid choice.");
                         break;
                 }
+
+                jsonService.Save("menu.json", menuService.MenuItems);
+                jsonService.Save("customers.json", customerService.Customers);
+                jsonService.Save("orders.json", restaurantService.Orders);
             }
         }
     }

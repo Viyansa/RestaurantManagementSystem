@@ -8,7 +8,7 @@ namespace RestaurantManagementSystem.Services
 {
     public class RestaurantService
     {
-        public List<RestaurantOrder> Orders =
+        public List<RestaurantOrder> Orders { get; set; } =
             new List<RestaurantOrder>();
 
         private readonly MenuService menuService;
@@ -47,9 +47,7 @@ namespace RestaurantManagementSystem.Services
                 Status = OrderStatus.Placed
             };
 
-            string choice = "";
-
-            do
+            while (true)
             {
                 menuService.DisplayMenu();
 
@@ -57,43 +55,48 @@ namespace RestaurantManagementSystem.Services
                 if (!int.TryParse(Console.ReadLine(), out int itemId))
                 {
                     Console.WriteLine("Invalid item ID.");
-                    choice = "no";
-                    continue;
-                }
-
-                Console.Write("Enter quantity: ");
-                if (!int.TryParse(Console.ReadLine(), out int quantity))
-                {
-                    Console.WriteLine("Invalid quantity.");
-                    choice = "no";
                     continue;
                 }
 
                 MenuItem? item = menuService.MenuItems
                     .FirstOrDefault(m => m.ItemId == itemId && m.IsAvailable);
 
-                if (item != null && quantity > 0)
+                if (item == null)
                 {
-                    order.Items.Add(new OrderItem
-                    {
-                        MenuItemId = item.ItemId,
-                        ItemNameSnapshot = item.Name,
-                        CategorySnapshot = item.Category,
-                        UnitPriceSnapshot = item.Price,
-                        Quantity = quantity
-                    });
-
-                    Console.WriteLine("Item added successfully.");
+                    Console.WriteLine("Menu item not found or unavailable.");
                 }
                 else
                 {
-                    Console.WriteLine("Invalid item or quantity.");
+                    Console.Write("Enter quantity: ");
+
+                    if (!int.TryParse(Console.ReadLine(), out int quantity) ||
+                        quantity <= 0)
+                    {
+                        Console.WriteLine("Enter a valid positive quantity.");
+                    }
+                    else
+                    {
+                        order.Items.Add(new OrderItem
+                        {
+                            MenuItemId = item.ItemId,
+                            ItemNameSnapshot = item.Name,
+                            CategorySnapshot = item.Category,
+                            UnitPriceSnapshot = item.Price,
+                            Quantity = quantity
+                        });
+
+                        Console.WriteLine("Item added successfully.");
+                    }
                 }
 
                 Console.Write("Add another item? (yes/no): ");
-                choice = (Console.ReadLine() ?? "").Trim().ToLower();
+                string answer = (Console.ReadLine() ?? "").Trim();
 
-            } while (choice == "yes");
+                if (!answer.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+            }
 
             if (order.Items.Count == 0)
             {
@@ -104,6 +107,7 @@ namespace RestaurantManagementSystem.Services
             Orders.Add(order);
 
             Console.WriteLine("Order created successfully.");
+            Console.WriteLine("Customer: " + customer.FullName);
             Console.WriteLine("Total amount: " + CalculateTotal(order));
         }
 
@@ -130,10 +134,17 @@ namespace RestaurantManagementSystem.Services
             foreach (RestaurantOrder order in Orders)
             {
                 Console.WriteLine(
-                    "Order ID: " + order.OrderId +
-                    " | Customer ID: " + order.CustomerId +
-                    " | Status: " + order.Status +
-                    " | Total: " + CalculateTotal(order));
+                    $"Order ID: {order.OrderId} | " +
+                    $"Customer ID: {order.CustomerId} | " +
+                    $"Date: {order.CreatedAt} | Status: {order.Status} | " +
+                    $"Total: {CalculateTotal(order)}");
+
+                foreach (OrderItem item in order.Items)
+                {
+                    Console.WriteLine(
+                        $"  {item.ItemNameSnapshot} x {item.Quantity} = " +
+                        $"{item.LineTotal}");
+                }
             }
         }
 
@@ -152,12 +163,6 @@ namespace RestaurantManagementSystem.Services
                 order.Status == OrderStatus.Cancelled)
             {
                 Console.WriteLine("This order cannot be changed.");
-                return;
-            }
-
-            if (status == OrderStatus.Preparing && order.Items.Count == 0)
-            {
-                Console.WriteLine("Add items before preparing the order.");
                 return;
             }
 
@@ -182,9 +187,15 @@ namespace RestaurantManagementSystem.Services
 
         public void ShowServedSales()
         {
-            decimal total = Orders
-                .Where(o => o.Status == OrderStatus.Served)
-                .Sum(o => CalculateTotal(o));
+            decimal total = 0;
+
+            foreach (RestaurantOrder order in Orders)
+            {
+                if (order.Status == OrderStatus.Served)
+                {
+                    total += CalculateTotal(order);
+                }
+            }
 
             Console.WriteLine("Total served sales: " + total);
         }

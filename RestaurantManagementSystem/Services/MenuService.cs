@@ -8,7 +8,7 @@ namespace RestaurantManagementSystem.Services
 {
     public class MenuService
     {
-        public List<MenuItem> MenuItems = new List<MenuItem>();
+        public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
 
         public void AddMenuItem(MenuItem item)
         {
@@ -39,39 +39,33 @@ namespace RestaurantManagementSystem.Services
                 return;
             }
 
-            Console.WriteLine("\n--- Menu Items ---");
-
             foreach (MenuItem item in MenuItems)
             {
                 Console.WriteLine(
-                    "ID: " + item.ItemId +
-                    " | Name: " + item.Name +
-                    " | Category: " + item.Category +
-                    " | Price: " + item.Price +
-                    " | Available: " + item.IsAvailable);
+                    $"ID: {item.ItemId} | Name: {item.Name} | " +
+                    $"Category: {item.Category} | Price: {item.Price} | " +
+                    $"Available: {item.IsAvailable}");
             }
         }
 
         public void SearchMenuItem(string name)
         {
-            var items = MenuItems
+            var results = MenuItems
                 .Where(m => m.Name.Contains(
                     name, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            if (items.Count == 0)
+            if (results.Count == 0)
             {
                 Console.WriteLine("Menu item not found.");
                 return;
             }
 
-            foreach (MenuItem item in items)
+            foreach (MenuItem item in results)
             {
                 Console.WriteLine(
-                    item.ItemId + " | " +
-                    item.Name + " | " +
-                    item.Category + " | " +
-                    item.Price);
+                    $"{item.ItemId} | {item.Name} | " +
+                    $"{item.Category} | {item.Price}");
             }
         }
 
